@@ -98,8 +98,25 @@ int count_kabe(int i, int j) {
     return 0;
 }
 
+int count_tonarikabe(int i, int j) {
+    if (i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
+        i == SIZE && j == SIZE)
+        return 2;
+
+    if (i == 1 || i == SIZE || j == 1 || j == SIZE) return 1;
+    return 0;
+}
+
+int count_nanamekabe(int i, int j) {
+    if (i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
+        i == SIZE && j == SIZE)
+        return 3;
+
+    if (i == 1 || i == SIZE || j == 1 || j == SIZE) return 2;
+    return 0;
+}
+
 void update() {
-    map[20][20] = 1;
     for (int i = 1; i <= SIZE; i++) {
         for (int j = 1; j <= SIZE; j++) {
             next_map[i][j] = map[i][j];
@@ -108,12 +125,17 @@ void update() {
     const double ratio = 0.05;
     for (int i = 1; i <= SIZE; i++) {
         for (int j = 1; j <= SIZE; j++) {
-            for (int k = -1; k <= 1; k++) {
-                for (int l = -1; l <= 1; l++) {
-                    next_map[i + k][j + l] += map[i][j] * ratio;
-                }
-            }
-            next_map[i][j] -= map[i][j] * ratio * (9 - count_kabe(i, j));
+            next_map[i - 1][j] += map[i][j] * ratio;
+            next_map[i + 1][j] += map[i][j] * ratio;
+            next_map[i][j - 1] += map[i][j] * ratio;
+            next_map[i][j + 1] += map[i][j] * ratio;
+            next_map[i - 1][j - 1] += map[i][j] * ratio / 1.4142;
+            next_map[i - 1][j + 1] += map[i][j] * ratio / 1.4142;
+            next_map[i + 1][j - 1] += map[i][j] * ratio / 1.4142;
+            next_map[i + 1][j + 1] += map[i][j] * ratio / 1.4142;
+            next_map[i][j] -= map[i][j] * ratio * (4 - count_tonarikabe(i, j));
+            next_map[i][j] -=
+                map[i][j] * ratio / 1.4142 * (4 - count_nanamekabe(i, j));
         }
     }
 
@@ -124,7 +146,7 @@ void update() {
     }
 }
 int main() {
-    map[7][4] = 338;
+    map[10][10] = 338;
     while (1) {
         show();
         update();
