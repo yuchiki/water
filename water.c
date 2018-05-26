@@ -48,7 +48,7 @@ void colorntf(double percent) {
 void colorabstf(double percent) {
     const double part = 15;
     if (percent < 1 / part)
-        printf("**", percent);
+        printf("**");
     else if (percent < 2 / part)
         printf("\x1b[37m**\x1b[39m");
     else if (percent < 3 / part)
@@ -145,6 +145,7 @@ void update() {
         }
     }
 }
+
 int main() {
     map[10][10] = 338;
     while (1) {
