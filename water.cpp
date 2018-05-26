@@ -120,9 +120,14 @@ void update() {
     }
 }
 
-int main() {
+int initialize() {
     map[10][10] = 338;
-    while (1) {
+}
+
+int main() {
+    initialize();
+
+    while (true) {
         show();
         update();
         msleep(50);
