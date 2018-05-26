@@ -68,22 +68,21 @@ void show() {
     puts("");
 }
 
-int count_tonarikabe(int i, int j) {
-    if (i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
-        i == SIZE && j == SIZE)
-        return 2;
+bool is_corner(int i, int j) {
+    return i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
+           i == SIZE && j == SIZE;
+}
 
-    if (i == 1 || i == SIZE || j == 1 || j == SIZE) return 1;
-    return 0;
+bool is_on_edge(int i, int j) {
+    return i == 1 || i == SIZE || j == 1 || j == SIZE;
+}
+
+int count_tonarikabe(int i, int j) {
+    return is_corner(i, j) ? 2 : is_on_edge(i, j) ? 1 : 0;
 }
 
 int count_nanamekabe(int i, int j) {
-    if (i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
-        i == SIZE && j == SIZE)
-        return 3;
-
-    if (i == 1 || i == SIZE || j == 1 || j == SIZE) return 2;
-    return 0;
+    return is_corner(i, j) ? 3 : is_on_edge(i, j) ? 2 : 0;
 }
 
 int count_kabe(int i, int j) {
