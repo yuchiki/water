@@ -1,5 +1,5 @@
-water: water.c
-	gcc -o water water.c
+water: water.cpp
+	g++ -std=c++17 -o water water.cpp
 
 .PHONY: clean
 clean:

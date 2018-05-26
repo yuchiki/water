@@ -1,11 +1,37 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <vector>
+
+using namespace std;
 
 #define SIZE 20
 
 double map[SIZE + 2][SIZE + 2];
 double next_map[SIZE + 2][SIZE + 2];
+
+class board {
+    using column_t = vector<double>;
+    using field_t  = vector<column_t>;
+
+   private:
+    vector<field_t> fields;
+    int active_field = 0;
+
+   public:
+    const int Size = 20;
+    board() {
+        fields = vector<field_t>(2, field_t(Size + 2, column_t(Size + 2, 0)));
+    }
+    ~board() {}
+
+    void flip() {
+        active_field = 1 - active_field;
+    }
+
+    field_t &field() {
+        return fields[active_field];
+    }
+};
 
 void msleep(int millisecond) {
     usleep(millisecond * 1000);
@@ -147,6 +173,7 @@ void update() {
 }
 
 int main() {
+    vector<int> a(10);
     map[10][10] = 338;
     while (1) {
         show();
