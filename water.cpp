@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <cmath>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -10,16 +12,13 @@ using namespace std;
 using column_t = vector<double>;
 using field_t  = vector<column_t>;
 
-field_t map(SIZE + 2, column_t(SIZE + 2, 0));
-field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
-
 class board {
    private:
     vector<field_t> fields;
     int active_field = 0;
 
    public:
-    const int Size = 20;
+    const int Size = SIZE;
     board() {
         fields = vector<field_t>(2, field_t(Size + 2, column_t(Size + 2, 0)));
     }
@@ -83,6 +82,9 @@ int count_walls(int i, int j) {
 
 // following functions are the core of this program.
 
+field_t map(SIZE + 2, column_t(SIZE + 2, 0));
+field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
+
 int initialize() {
     map[10][10] = 338;
 }
@@ -103,21 +105,25 @@ void update() {
             next_map[i][j] = map[i][j];
         }
     }
-    const double ratio = 0.05;
+    constexpr double ratio            = 0.05;
+    const double diagonal_ratio       = ratio / sqrt(2);
+    const pair<int, int> directions[] = {make_pair(0, -1), make_pair(0, 1),
+                                         make_pair(-1, 0), make_pair(1, 0)};
+    const pair<int, int> diagonal_directions[] = {
+        make_pair(-1, -1), make_pair(-1, 1), make_pair(1, -1), make_pair(1, 1)};
+
     for (int i = 1; i <= SIZE; i++) {
         for (int j = 1; j <= SIZE; j++) {
-            next_map[i - 1][j] += map[i][j] * ratio;
-            next_map[i + 1][j] += map[i][j] * ratio;
-            next_map[i][j - 1] += map[i][j] * ratio;
-            next_map[i][j + 1] += map[i][j] * ratio;
-            next_map[i - 1][j - 1] += map[i][j] * ratio / 1.4142;
-            next_map[i - 1][j + 1] += map[i][j] * ratio / 1.4142;
-            next_map[i + 1][j - 1] += map[i][j] * ratio / 1.4142;
-            next_map[i + 1][j + 1] += map[i][j] * ratio / 1.4142;
+            for (auto dir : directions)
+                next_map[i + dir.first][j + dir.second] += map[i][j] * ratio;
+            for (auto dir : diagonal_directions)
+                next_map[i + dir.first][j + dir.second] +=
+                    map[i][j] * diagonal_ratio;
+            // cancel flows to wall-cells.
             next_map[i][j] -=
                 map[i][j] * ratio * (4 - count_off_diagonal_walls(i, j));
             next_map[i][j] -=
-                map[i][j] * ratio / 1.4142 * (4 - count_diagonal_walls(i, j));
+                map[i][j] * diagonal_ratio * (4 - count_diagonal_walls(i, j));
         }
     }
 
