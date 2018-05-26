@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -37,72 +38,24 @@ void msleep(int millisecond) {
     usleep(millisecond * 1000);
 }
 
-void colorntf(double percent) {
-    const double part = 15;
-    if (percent < 1 / part)
-        printf("%3.3lf ", percent);
-    else if (percent < 2 / part)
-        printf("\x1b[37m%3.3lf\x1b[39m ", percent);
-    else if (percent < 3 / part)
-        printf("\x1b[36m%3.3lf\x1b[39m ", percent);
-    else if (percent < 4 / part)
-        printf("\x1b[35m%3.3lf\x1b[39m ", percent);
-    else if (percent < 5 / part)
-        printf("\x1b[34m%3.3lf\x1b[39m ", percent);
-    else if (percent < 6 / part)
-        printf("\x1b[33m%3.3lf\x1b[39m ", percent);
-    else if (percent < 7 / part)
-        printf("\x1b[32m%3.3lf\x1b[39m ", percent);
-    else if (percent < 8 / part)
-        printf("\x1b[31m%3.3lf\x1b[39m ", percent);
-    else if (percent < 9 / part)
-        printf("\x1b[47m%3.3lf\x1b[49m ", percent);
-    else if (percent < 10 / part)
-        printf("\x1b[46m%3.3lf\x1b[49m ", percent);
-    else if (percent < 11 / part)
-        printf("\x1b[45m%3.3lf\x1b[49m ", percent);
-    else if (percent < 12 / part)
-        printf("\x1b[44m%3.3lf\x1b[49m ", percent);
-    else if (percent < 13 / part)
-        printf("\x1b[43m%3.3lf\x1b[49m ", percent);
-    else if (percent < 14 / part)
-        printf("\x1b[42m%3.3lf\x1b[49m ", percent);
-    else
-        printf("\x1b[41m%3.3lf\x1b[49m ", percent);
-}
-
 void colorabstf(double percent) {
-    const double part = 15;
-    if (percent < 1 / part)
-        printf("**");
-    else if (percent < 2 / part)
-        printf("\x1b[37m**\x1b[39m");
-    else if (percent < 3 / part)
-        printf("\x1b[36m**\x1b[39m");
-    else if (percent < 4 / part)
-        printf("\x1b[35m**\x1b[39m");
-    else if (percent < 5 / part)
-        printf("\x1b[34m**\x1b[39m");
-    else if (percent < 6 / part)
-        printf("\x1b[33m**\x1b[39m");
-    else if (percent < 7 / part)
-        printf("\x1b[32m**\x1b[39m");
-    else if (percent < 8 / part)
-        printf("\x1b[31m**\x1b[39m");
-    else if (percent < 9 / part)
-        printf("\x1b[47m**\x1b[49m");
-    else if (percent < 10 / part)
-        printf("\x1b[46m**\x1b[49m");
-    else if (percent < 11 / part)
-        printf("\x1b[45m**\x1b[49m");
-    else if (percent < 12 / part)
-        printf("\x1b[44m**\x1b[49m");
-    else if (percent < 13 / part)
-        printf("\x1b[43m**\x1b[49m");
-    else if (percent < 14 / part)
-        printf("\x1b[42m**\x1b[49m");
-    else
-        printf("\x1b[41m**\x1b[49m");
+    percent = min(percent, 0.999999);
+    vector<string> formatter{"**",
+                             "\x1b[37m**\x1b[39m",
+                             "\x1b[36m**\x1b[39m",
+                             "\x1b[35m**\x1b[39m",
+                             "\x1b[34m**\x1b[39m",
+                             "\x1b[33m**\x1b[39m",
+                             "\x1b[32m**\x1b[39m",
+                             "\x1b[31m**\x1b[39m",
+                             "\x1b[47m**\x1b[49m",
+                             "\x1b[46m**\x1b[49m",
+                             "\x1b[45m**\x1b[49m",
+                             "\x1b[44m**\x1b[49m",
+                             "\x1b[43m**\x1b[49m",
+                             "\x1b[42m**\x1b[49m",
+                             "\x1b[41m**\x1b[49m"};
+    printf(formatter[percent * formatter.size()].c_str());
 }
 
 void show() {
