@@ -7,13 +7,13 @@ using namespace std;
 
 #define SIZE 20
 
-double map[SIZE + 2][SIZE + 2];
-double next_map[SIZE + 2][SIZE + 2];
+using column_t = vector<double>;
+using field_t  = vector<column_t>;
+
+field_t map(SIZE + 2, column_t(SIZE + 2, 0));
+field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
 
 class board {
-    using column_t = vector<double>;
-    using field_t  = vector<column_t>;
-
    private:
     vector<field_t> fields;
     int active_field = 0;
@@ -33,6 +33,8 @@ class board {
         return fields[active_field];
     }
 };
+
+// following functions are of utility.
 
 void msleep(int millisecond) {
     usleep(millisecond * 1000);
@@ -58,16 +60,6 @@ void colorabstf(double percent) {
     printf(formatter[percent * formatter.size()].c_str());
 }
 
-void show() {
-    for (int i = 1; i <= SIZE; i++) {
-        for (int j = 1; j <= SIZE; j++) {
-            colorabstf(map[i][j]);
-        }
-        puts("");
-    }
-    puts("");
-}
-
 bool is_corner(int i, int j) {
     return i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
            i == SIZE && j == SIZE;
@@ -87,6 +79,22 @@ int count_diagonal_walls(int i, int j) {
 
 int count_walls(int i, int j) {
     return count_off_diagonal_walls(i, j) + count_diagonal_walls(i, j);
+}
+
+// following functions are the core of this program.
+
+int initialize() {
+    map[10][10] = 338;
+}
+
+void show() {
+    for (int i = 1; i <= SIZE; i++) {
+        for (int j = 1; j <= SIZE; j++) {
+            colorabstf(map[i][j]);
+        }
+        puts("");
+    }
+    puts("");
 }
 
 void update() {
@@ -118,10 +126,6 @@ void update() {
             map[i][j] = next_map[i][j];
         }
     }
-}
-
-int initialize() {
-    map[10][10] = 338;
 }
 
 int main() {
