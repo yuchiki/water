@@ -68,15 +68,6 @@ void show() {
     puts("");
 }
 
-int count_kabe(int i, int j) {
-    if (i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
-        i == SIZE && j == SIZE)
-        return 5;
-
-    if (i == 1 || i == SIZE || j == 1 || j == SIZE) return 3;
-    return 0;
-}
-
 int count_tonarikabe(int i, int j) {
     if (i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
         i == SIZE && j == SIZE)
@@ -93,6 +84,10 @@ int count_nanamekabe(int i, int j) {
 
     if (i == 1 || i == SIZE || j == 1 || j == SIZE) return 2;
     return 0;
+}
+
+int count_kabe(int i, int j) {
+    return count_tonarikabe(i, j) + count_nanamekabe(i, j);
 }
 
 void update() {
@@ -126,7 +121,6 @@ void update() {
 }
 
 int main() {
-    vector<int> a(10);
     map[10][10] = 338;
     while (1) {
         show();
