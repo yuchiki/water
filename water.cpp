@@ -77,16 +77,16 @@ bool is_on_edge(int i, int j) {
     return i == 1 || i == SIZE || j == 1 || j == SIZE;
 }
 
-int count_tonarikabe(int i, int j) {
+int count_off_diagonal_walls(int i, int j) {
     return is_corner(i, j) ? 2 : is_on_edge(i, j) ? 1 : 0;
 }
 
-int count_nanamekabe(int i, int j) {
+int count_diagonal_walls(int i, int j) {
     return is_corner(i, j) ? 3 : is_on_edge(i, j) ? 2 : 0;
 }
 
-int count_kabe(int i, int j) {
-    return count_tonarikabe(i, j) + count_nanamekabe(i, j);
+int count_walls(int i, int j) {
+    return count_off_diagonal_walls(i, j) + count_diagonal_walls(i, j);
 }
 
 void update() {
@@ -106,9 +106,10 @@ void update() {
             next_map[i - 1][j + 1] += map[i][j] * ratio / 1.4142;
             next_map[i + 1][j - 1] += map[i][j] * ratio / 1.4142;
             next_map[i + 1][j + 1] += map[i][j] * ratio / 1.4142;
-            next_map[i][j] -= map[i][j] * ratio * (4 - count_tonarikabe(i, j));
             next_map[i][j] -=
-                map[i][j] * ratio / 1.4142 * (4 - count_nanamekabe(i, j));
+                map[i][j] * ratio * (4 - count_off_diagonal_walls(i, j));
+            next_map[i][j] -=
+                map[i][j] * ratio / 1.4142 * (4 - count_diagonal_walls(i, j));
         }
     }
 
