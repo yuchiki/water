@@ -82,14 +82,15 @@ int count_walls(int i, int j) {
 
 // following functions are the core of this program.
 
-field_t map(SIZE + 2, column_t(SIZE + 2, 0));
 field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
 
-int initialize() {
+field_t initialize() {
+    field_t map(SIZE + 2, column_t(SIZE + 2, 0));
     map[10][10] = 338;
+    return map;  // May NRVO work well!
 }
 
-void show() {
+void show(const field_t &map) {
     for (int i = 1; i <= SIZE; i++) {
         for (int j = 1; j <= SIZE; j++) {
             colorabstf(map[i][j]);
@@ -99,17 +100,17 @@ void show() {
     puts("");
 }
 
-void update() {
+void update(field_t &map) {
     for (int i = 1; i <= SIZE; i++) {
         for (int j = 1; j <= SIZE; j++) {
             next_map[i][j] = map[i][j];
         }
     }
-    constexpr double ratio            = 0.05;
-    const double diagonal_ratio       = ratio / sqrt(2);
-    const pair<int, int> directions[] = {make_pair(0, -1), make_pair(0, 1),
-                                         make_pair(-1, 0), make_pair(1, 0)};
-    const pair<int, int> diagonal_directions[] = {
+    constexpr double ratio          = 0.05;
+    constexpr double diagonal_ratio = ratio / 1.41421356;
+    constexpr pair<int, int> directions[] = {make_pair(0, -1), make_pair(0, 1),
+                                             make_pair(-1, 0), make_pair(1, 0)};
+    constexpr pair<int, int> diagonal_directions[] = {
         make_pair(-1, -1), make_pair(-1, 1), make_pair(1, -1), make_pair(1, 1)};
 
     for (int i = 1; i <= SIZE; i++) {
@@ -135,11 +136,11 @@ void update() {
 }
 
 int main() {
-    initialize();
+    field_t map = initialize();
 
     while (true) {
-        show();
-        update();
+        show(map);
+        update(map);
         msleep(50);
     }
     return 0;
