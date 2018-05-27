@@ -12,14 +12,23 @@ using namespace std;
 using column_t = vector<double>;
 using field_t  = vector<column_t>;
 
+void colorabstf(double percent) {
+    percent = min(percent, 0.999999);
+    const vector<int> color_format{37, 36, 35, 34, 33, 32, 31,
+                                   47, 46, 45, 44, 43, 42, 41};
+    printf("\x1b[%dm**\x1b[39m\x1b[49m",
+           color_format[percent * color_format.size()]);
+}
+
 class board {
    private:
     vector<field_t> fields;
     int active_field = 0;
 
    public:
-    const int Size = SIZE;
-    board() {
+    int Size;
+    board(int size) {
+        Size   = size;
         fields = vector<field_t>(2, field_t(Size + 2, column_t(Size + 2, 0)));
     }
     ~board() {}
@@ -31,6 +40,82 @@ class board {
     field_t &field() {
         return fields[active_field];
     }
+
+    field_t &background_field() {
+        return fields[1 - active_field];
+    }
+
+    void show() {
+        field_t map = field();
+        for (int i = 1; i <= SIZE; i++) {
+            for (int j = 1; j <= SIZE; j++) {
+                colorabstf(map[i][j]);
+            }
+            puts("");
+        }
+        puts("");
+    }
+
+    bool is_corner(int i, int j) {
+        return i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
+               i == SIZE && j == SIZE;
+    }
+
+    bool is_on_edge(int i, int j) {
+        return i == 1 || i == SIZE || j == 1 || j == SIZE;
+    }
+
+    int count_off_diagonal_walls(int i, int j) {
+        return is_corner(i, j) ? 2 : is_on_edge(i, j) ? 1 : 0;
+    }
+
+    int count_diagonal_walls(int i, int j) {
+        return is_corner(i, j) ? 3 : is_on_edge(i, j) ? 2 : 0;
+    }
+
+    int count_walls(int i, int j) {
+        return count_off_diagonal_walls(i, j) + count_diagonal_walls(i, j);
+    }
+
+    void update() {
+        field_t &map = field();
+        static field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
+        for (int i = 1; i <= SIZE; i++) {
+            for (int j = 1; j <= SIZE; j++) {
+                next_map[i][j] = map[i][j];
+            }
+        }
+        constexpr double ratio                = 0.05;
+        constexpr double diagonal_ratio       = ratio / 1.41421356;
+        constexpr pair<int, int> directions[] = {
+            make_pair(0, -1), make_pair(0, 1), make_pair(-1, 0),
+            make_pair(1, 0)};
+        constexpr pair<int, int> diagonal_directions[] = {
+            make_pair(-1, -1), make_pair(-1, 1), make_pair(1, -1),
+            make_pair(1, 1)};
+
+        for (int i = 1; i <= SIZE; i++) {
+            for (int j = 1; j <= SIZE; j++) {
+                for (auto dir : directions)
+                    next_map[i + dir.first][j + dir.second] +=
+                        map[i][j] * ratio;
+                for (auto dir : diagonal_directions)
+                    next_map[i + dir.first][j + dir.second] +=
+                        map[i][j] * diagonal_ratio;
+                // cancel flows to wall-cells.
+                next_map[i][j] -=
+                    map[i][j] * ratio * (4 - count_off_diagonal_walls(i, j));
+                next_map[i][j] -= map[i][j] * diagonal_ratio *
+                                  (4 - count_diagonal_walls(i, j));
+            }
+        }
+
+        for (int i = 1; i <= SIZE; i++) {
+            for (int j = 1; j <= SIZE; j++) {
+                map[i][j] = next_map[i][j];
+            }
+        }
+    }
 };
 
 // following functions are of utility.
@@ -39,108 +124,19 @@ void msleep(int millisecond) {
     usleep(millisecond * 1000);
 }
 
-void colorabstf(double percent) {
-    percent = min(percent, 0.999999);
-    vector<string> formatter{"**",
-                             "\x1b[37m**\x1b[39m",
-                             "\x1b[36m**\x1b[39m",
-                             "\x1b[35m**\x1b[39m",
-                             "\x1b[34m**\x1b[39m",
-                             "\x1b[33m**\x1b[39m",
-                             "\x1b[32m**\x1b[39m",
-                             "\x1b[31m**\x1b[39m",
-                             "\x1b[47m**\x1b[49m",
-                             "\x1b[46m**\x1b[49m",
-                             "\x1b[45m**\x1b[49m",
-                             "\x1b[44m**\x1b[49m",
-                             "\x1b[43m**\x1b[49m",
-                             "\x1b[42m**\x1b[49m",
-                             "\x1b[41m**\x1b[49m"};
-    printf(formatter[percent * formatter.size()].c_str());
-}
-
-bool is_corner(int i, int j) {
-    return i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
-           i == SIZE && j == SIZE;
-}
-
-bool is_on_edge(int i, int j) {
-    return i == 1 || i == SIZE || j == 1 || j == SIZE;
-}
-
-int count_off_diagonal_walls(int i, int j) {
-    return is_corner(i, j) ? 2 : is_on_edge(i, j) ? 1 : 0;
-}
-
-int count_diagonal_walls(int i, int j) {
-    return is_corner(i, j) ? 3 : is_on_edge(i, j) ? 2 : 0;
-}
-
-int count_walls(int i, int j) {
-    return count_off_diagonal_walls(i, j) + count_diagonal_walls(i, j);
-}
-
 // following functions are the core of this program.
 
-field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
-
-field_t initialize() {
-    field_t map(SIZE + 2, column_t(SIZE + 2, 0));
-    map[10][10] = 338;
-    return map;  // May NRVO work well!
-}
-
-void show(const field_t &map) {
-    for (int i = 1; i <= SIZE; i++) {
-        for (int j = 1; j <= SIZE; j++) {
-            colorabstf(map[i][j]);
-        }
-        puts("");
-    }
-    puts("");
-}
-
-void update(field_t &map) {
-    for (int i = 1; i <= SIZE; i++) {
-        for (int j = 1; j <= SIZE; j++) {
-            next_map[i][j] = map[i][j];
-        }
-    }
-    constexpr double ratio          = 0.05;
-    constexpr double diagonal_ratio = ratio / 1.41421356;
-    constexpr pair<int, int> directions[] = {make_pair(0, -1), make_pair(0, 1),
-                                             make_pair(-1, 0), make_pair(1, 0)};
-    constexpr pair<int, int> diagonal_directions[] = {
-        make_pair(-1, -1), make_pair(-1, 1), make_pair(1, -1), make_pair(1, 1)};
-
-    for (int i = 1; i <= SIZE; i++) {
-        for (int j = 1; j <= SIZE; j++) {
-            for (auto dir : directions)
-                next_map[i + dir.first][j + dir.second] += map[i][j] * ratio;
-            for (auto dir : diagonal_directions)
-                next_map[i + dir.first][j + dir.second] +=
-                    map[i][j] * diagonal_ratio;
-            // cancel flows to wall-cells.
-            next_map[i][j] -=
-                map[i][j] * ratio * (4 - count_off_diagonal_walls(i, j));
-            next_map[i][j] -=
-                map[i][j] * diagonal_ratio * (4 - count_diagonal_walls(i, j));
-        }
-    }
-
-    for (int i = 1; i <= SIZE; i++) {
-        for (int j = 1; j <= SIZE; j++) {
-            map[i][j] = next_map[i][j];
-        }
-    }
+board initialize(int size) {
+    board b(size);
+    b.field()[10][10] = 338;
+    return b;  // May NRVO work well!
 }
 
 int main() {
-    field_t map = initialize();
-
+    board b = initialize(SIZE);
     while (true) {
-        show(map);
-        update(map);
+        b.show();
+        b.update();
         msleep(50);
     }
     return 0;
