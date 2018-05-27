@@ -7,11 +7,6 @@
 
 using namespace std;
 
-#define SIZE 20
-
-using column_t = vector<double>;
-using field_t  = vector<column_t>;
-
 void colorabstf(double percent) {
     percent = min(percent, 0.999999);
     const vector<int> color_format{37, 36, 35, 34, 33, 32, 31,
@@ -21,6 +16,9 @@ void colorabstf(double percent) {
 }
 
 class board {
+    using column_t = vector<double>;
+    using field_t  = vector<column_t>;
+
    private:
     vector<field_t> fields;
     int active_field = 0;
@@ -47,8 +45,8 @@ class board {
 
     void show() {
         field_t map = field();
-        for (int i = 1; i <= SIZE; i++) {
-            for (int j = 1; j <= SIZE; j++) {
+        for (int i = 1; i <= Size; i++) {
+            for (int j = 1; j <= Size; j++) {
                 colorabstf(map[i][j]);
             }
             puts("");
@@ -57,12 +55,12 @@ class board {
     }
 
     bool is_corner(int i, int j) {
-        return i == 1 && j == 1 || i == 1 && j == SIZE || i == SIZE && j == 1 ||
-               i == SIZE && j == SIZE;
+        return i == 1 && j == 1 || i == 1 && j == Size || i == Size && j == 1 ||
+               i == Size && j == Size;
     }
 
     bool is_on_edge(int i, int j) {
-        return i == 1 || i == SIZE || j == 1 || j == SIZE;
+        return i == 1 || i == Size || j == 1 || j == Size;
     }
 
     int count_off_diagonal_walls(int i, int j) {
@@ -79,9 +77,9 @@ class board {
 
     void update() {
         field_t &map = field();
-        static field_t next_map(SIZE + 2, column_t(SIZE + 2, 0));
-        for (int i = 1; i <= SIZE; i++) {
-            for (int j = 1; j <= SIZE; j++) {
+        static field_t next_map(Size + 2, column_t(Size + 2, 0));
+        for (int i = 1; i <= Size; i++) {
+            for (int j = 1; j <= Size; j++) {
                 next_map[i][j] = map[i][j];
             }
         }
@@ -94,8 +92,8 @@ class board {
             make_pair(-1, -1), make_pair(-1, 1), make_pair(1, -1),
             make_pair(1, 1)};
 
-        for (int i = 1; i <= SIZE; i++) {
-            for (int j = 1; j <= SIZE; j++) {
+        for (int i = 1; i <= Size; i++) {
+            for (int j = 1; j <= Size; j++) {
                 for (auto dir : directions)
                     next_map[i + dir.first][j + dir.second] +=
                         map[i][j] * ratio;
@@ -110,8 +108,8 @@ class board {
             }
         }
 
-        for (int i = 1; i <= SIZE; i++) {
-            for (int j = 1; j <= SIZE; j++) {
+        for (int i = 1; i <= Size; i++) {
+            for (int j = 1; j <= Size; j++) {
                 map[i][j] = next_map[i][j];
             }
         }
@@ -133,7 +131,7 @@ board initialize(int size) {
 }
 
 int main() {
-    board b = initialize(SIZE);
+    board b = initialize(20);
     while (true) {
         b.show();
         b.update();
