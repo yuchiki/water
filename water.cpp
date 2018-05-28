@@ -126,22 +126,49 @@ void msleep(int millisecond) {
 
 // following functions are the core of this program.
 
-board initialize() {
-    ifstream ini("initialization.txt");
-    int size;
-    ini >> size;
+board initialize(ifstream &init_file) {
+    int size, n;
+    init_file >> size >> n;
+
+    if (!init_file) {
+        cerr << "invalid format." << endl;
+        exit(1);
+    }
+
     board b(size);
-    while (true) {
+    for (int k = 0; k < n; k++) {
         int i, j;
         double v;
-        ini >> i >> j >> v;
-        if (!ini) return b;
+        init_file >> i >> j >> v;
+        if (!init_file) {
+            cerr << "invalid format." << endl;
+            exit(1);
+        };
         b.field()[i][j] = v;
     }
+    return b;
 }
 
-int main() {
-    board b = initialize();
+void show_usage() {
+    cerr << "usage: water <initialization file>" << endl;
+}
+
+ifstream validation(int argc, char **argv) {
+    if (argc != 2) {
+        show_usage();
+        exit(1);
+    }
+    ifstream init_file(argv[1]);
+    if (!init_file) {
+        cerr << "could not open the init file." << endl;
+        exit(1);
+    }
+    return init_file;
+}
+
+int main(int argc, char **argv) {
+    ifstream init_file = validation(argc, argv);
+    board b            = initialize(init_file);
     while (true) {
         b.show();
         b.update();
