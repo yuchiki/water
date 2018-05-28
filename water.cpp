@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -83,8 +85,8 @@ class board {
                 next_map[i][j] = map[i][j];
             }
         }
-        constexpr double ratio                = 0.05;
-        constexpr double diagonal_ratio       = ratio / 1.41421356;
+        constexpr double ratio          = 0.05;
+        constexpr double diagonal_ratio = ratio / 1.41421356;
         constexpr pair<int, int> directions[] = {
             make_pair(0, -1), make_pair(0, 1), make_pair(-1, 0),
             make_pair(1, 0)};
@@ -124,14 +126,22 @@ void msleep(int millisecond) {
 
 // following functions are the core of this program.
 
-board initialize(int size) {
+board initialize() {
+    ifstream ini("initialization.txt");
+    int size;
+    ini >> size;
     board b(size);
-    b.field()[10][10] = 338;
-    return b;  // May NRVO work well!
+    while (true) {
+        int i, j;
+        double v;
+        ini >> i >> j >> v;
+        if (!ini) return b;
+        b.field()[i][j] = v;
+    }
 }
 
 int main() {
-    board b = initialize(20);
+    board b = initialize();
     while (true) {
         b.show();
         b.update();
